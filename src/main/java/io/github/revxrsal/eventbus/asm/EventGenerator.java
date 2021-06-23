@@ -78,7 +78,8 @@ final class EventGenerator implements Opcodes {
                         adapter.push(p.getAnnotation(RequireNonNull.class).value().replace("$field", fieldName));
                         adapter.invokeStatic(OBJECTS, REQ_NON_NULL);
                     }
-                    adapter.checkCast(fieldType);
+                    if (fieldType.getSort() == Type.OBJECT)
+                        adapter.checkCast(fieldType);
                     adapter.putField(genType, fieldName, fieldType);
                     adapter.returnValue();
                     adapter.endMethod();
