@@ -42,7 +42,7 @@ public final class ASMEventBus extends BaseEventBus {
         return super.post(event);
     }
 
-    @Override public void preGenerate(@NotNull Class<?> event) {
-        EventGenerator.generateFactory(event);
+    @Override public void preGenerate(@NotNull Class<?>... event) {
+        for (Class<?> e : event) EventGenerator.generateFactory(e);
     }
 }
