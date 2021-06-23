@@ -106,7 +106,7 @@ public interface EventBus {
      *
      * @param event Event to generate for.
      */
-    void preGenerate(@NotNull Class<?> event);
+    void preGenerate(@NotNull Class<?>... event);
 
     /**
      * Registers the specified instance by scanning for listeners.

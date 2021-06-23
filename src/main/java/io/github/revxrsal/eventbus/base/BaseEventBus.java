@@ -73,7 +73,7 @@ public abstract class BaseEventBus implements EventBus {
         throw new UnsupportedOperationException("Only EventBuses constructed from EventBusBuilder.asm() can use this method.");
     }
 
-    @Override public void preGenerate(@NotNull Class<?> event) {
+    @Override public void preGenerate(@NotNull Class<?>... event) {
         throw new UnsupportedOperationException("Only EventBuses constructed from EventBusBuilder.asm() can use this method.");
     }
 
@@ -112,8 +112,7 @@ public abstract class BaseEventBus implements EventBus {
             subscriptions.add(new Subscription(listener, listenerInstance, name, eventType));
         }
         for (Field field : cl.getDeclaredFields()) {
-            SubscribeEvent se = field.getAnnotation(SubscribeEvent.class);
-            if (se == null) continue;
+            if (annotations.stream().noneMatch(field::isAnnotationPresent)) continue;
             if (listenerInstance == cl && !Modifier.isStatic(field.getModifiers())) {
                 throw new IllegalArgumentException("Field " + field.getName() + " in " + cl
                         + " is non-static but provided listener was not an instance!");
