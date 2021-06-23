@@ -55,7 +55,7 @@ final class EventGenerator implements Opcodes {
                 String fieldName = getFieldName(method.getName());
                 if (!method.getName().startsWith("set")) {
                     if (method.getReturnType() == Void.TYPE) {
-                        throw new IllegalArgumentException("Don't know how to implement a void method (" + method.getName() + ")");
+                        throw new IllegalArgumentException("Don't know how to implement a getter void method (" + method.getName() + ")");
                     }
                     Type fieldType = Type.getType(method.getReturnType());
                     fieldVisitor = writer.visitField(ACC_PRIVATE, fieldName, fieldType.getDescriptor(), null, null);
@@ -68,13 +68,16 @@ final class EventGenerator implements Opcodes {
                     adapter.returnValue();
                     adapter.endMethod();
                 } else { // method is setter
+                    if (method.getReturnType() != Void.TYPE) {
+                        throw new IllegalArgumentException("Setter method " + method.getName() + " must return void! (Found " + method.getReturnType().getName() + ")");
+                    }
                     Parameter p = method.getParameters()[0];
                     Type fieldType = Type.getType(p.getType());
                     GeneratorAdapter adapter = GeneratorAdapter.newMethodGenerator(writer, method.getName(), Type.getMethodDescriptor(method));
                     adapter.loadThis();
                     adapter.loadArg(0);
 
-                    if (p.isAnnotationPresent(RequireNonNull.class)) {
+                    if (p.isAnnotationPresent(RequireNonNull.class) && !p.getType().isPrimitive()) {
                         adapter.push(p.getAnnotation(RequireNonNull.class).value().replace("$field", fieldName));
                         adapter.invokeStatic(OBJECTS, REQ_NON_NULL);
                     }
@@ -196,7 +199,6 @@ final class EventGenerator implements Opcodes {
                 adapter.endMethod();
             }
             byte[] generated = writer.toByteArray();
-
             GeneratedClassDefiner.define(eventClass.getClassLoader(), name, generated);
 
             // generate a factory to invoke the object constructor
