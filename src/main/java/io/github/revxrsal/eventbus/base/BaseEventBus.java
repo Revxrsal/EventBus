@@ -77,6 +77,19 @@ public abstract class BaseEventBus implements EventBus {
         throw new UnsupportedOperationException("Only EventBuses constructed from EventBusBuilder.asm() can use this method.");
     }
 
+    @Override public <T> T submit(@NotNull T event) {
+        post(event);
+        return event;
+    }
+
+    @Override public <T> T submit(@NotNull Class<T> eventType) {
+        throw new UnsupportedOperationException("Only EventBuses constructed from EventBusBuilder.asm() can use this method.");
+    }
+
+    @Override public <T> T submit(@NotNull Class<T> eventType, Object... parameters) {
+        throw new UnsupportedOperationException("Only EventBuses constructed from EventBusBuilder.asm() can use this method.");
+    }
+
     @Override public CompletableFuture<Void> post(@NotNull Object event) {
         return runAsync(() -> {
             for (Subscription subscription : subscriptions) {

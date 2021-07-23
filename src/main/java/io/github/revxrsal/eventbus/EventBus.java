@@ -98,6 +98,39 @@ public interface EventBus {
     CompletableFuture<Void> post(@NotNull Class<?> event, Object... parameters);
 
     /**
+     * Publishes this event to all listeners, and returns the event instantly.
+     *
+     * <strong>Note that this will not respect futures if the event bus is asynchronous!</strong>
+     *
+     * @param event Event to publish
+     * @return The posted event
+     * @see #publish(Object)
+     */
+    <T> T submit(@NotNull T event);
+
+    /**
+     * Publishes this event to all listeners, and returns the event instantly.
+     *
+     * <strong>Note that this will not respect futures if the event bus is asynchronous!</strong>
+     *
+     * @param eventType Event class to generate
+     * @return The posted event
+     * @see #publish(Class)
+     */
+    <T> T submit(@NotNull Class<T> eventType);
+
+    /**
+     * Publishes the generated event to all listeners.
+     *
+     * @param eventType      Event class to generate
+     * @param parameters Event parameters in the appropriate order as
+     *                   defined by {@link Index}
+     * @return The posted event
+     * @see #publish(Class, Object[])
+     */
+    <T> T submit(@NotNull Class<T> eventType, Object... parameters);
+
+    /**
      * A utility method to automatically pre-generate all the required
      * stuff for invoking the event.
      * <p>
