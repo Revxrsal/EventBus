@@ -1,11 +1,15 @@
 package io.github.revxrsal.eventbus.asm;
 
 import io.github.revxrsal.eventbus.gen.Index;
+import io.github.revxrsal.eventbus.gen.Property;
 import io.github.revxrsal.eventbus.gen.RequireNonNull;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Parameter;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -44,12 +48,14 @@ final class EventGenerator implements Opcodes {
             Type genType = Type.getType("L" + name.replace('.', '/') + ";");
             ClassWriter writer = GeneratorAdapter.newClassWriter(name, Type.getInternalName(eventClass));
             List<CtrType> constructorTypes = new ArrayList<>();
+            List<String> fieldNames = new ArrayList<>();
             FieldVisitor fieldVisitor;
             for (java.lang.reflect.Method method : eventClass.getMethods()) {
                 if (method.isDefault()) continue;
+                Property propertyAnn = method.getAnnotation(Property.class);
                 Index indexAnn = method.getAnnotation(Index.class);
-                if (indexAnn == null) {
-                    throw new IllegalArgumentException("Found an abstract method (" + method.getName() + ") that is not annotated with @Index!");
+                if (indexAnn == null && propertyAnn == null) {
+                    throw new IllegalArgumentException("Found an abstract method (" + method.getName() + ") that is not annotated with @Index or @Property!");
                 }
 
                 String fieldName = getFieldName(method.getName());
@@ -60,6 +66,7 @@ final class EventGenerator implements Opcodes {
                     Type fieldType = Type.getType(method.getReturnType());
                     fieldVisitor = writer.visitField(ACC_PRIVATE, fieldName, fieldType.getDescriptor(), null, null);
                     fieldVisitor.visitEnd();
+                    if (indexAnn != null)
                     constructorTypes.add(new CtrType(indexAnn.value(), fieldType, fieldName));
                     // generate getter
                     GeneratorAdapter adapter = GeneratorAdapter.newMethodGenerator(writer, method.getName(), Type.getMethodDescriptor(method));
@@ -199,6 +206,11 @@ final class EventGenerator implements Opcodes {
                 adapter.endMethod();
             }
             byte[] generated = writer.toByteArray();
+            try {
+                Files.write(new File("event.class").toPath(), generated);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             GeneratedClassDefiner.define(eventClass.getClassLoader(), name, generated);
 
             // generate a factory to invoke the object constructor
