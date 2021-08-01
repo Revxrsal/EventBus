@@ -53,7 +53,7 @@ public final class ASMEventBus extends BaseEventBus {
     }
 
     @Override public <T> T submit(@NotNull Class<T> eventType, Object... parameters) {
-        T event = EventGenerator.generate(eventType);
+        T event = EventGenerator.generate(eventType, parameters);
         post(event);
         return event;
     }
