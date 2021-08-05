@@ -81,7 +81,7 @@ public final class SimpleEventBusBuilder implements EventBusBuilder {
         }
     }
 
-    private static final Executor DEFAULT_EXECUTOR = Runnable::run;
+    static final Executor DEFAULT_EXECUTOR = Runnable::run;
     private static final String ASM = "io.github.revxrsal.eventbus.asm.ASMEventBus";
     private static final String MH = "io.github.revxrsal.eventbus.base.MethodHandlesEventBus";
     private static final String REFLECTION = "io.github.revxrsal.eventbus.base.ReflectionEventBus";

@@ -78,7 +78,17 @@ public abstract class BaseEventBus implements EventBus {
     }
 
     @Override public <T> T submit(@NotNull T event) {
-        post(event);
+        executor.execute(() -> {
+            for (Subscription subscription : subscriptions) {
+                if (subscription.shouldInvoke(hierarchicalInvocation, event.getClass())) {
+                    try {
+                        subscription.getListener().handle(event);
+                    } catch (Throwable throwable) {
+                        exceptionHandler.handleException(subscription, event, throwable);
+                    }
+                }
+            }
+        });
         return event;
     }
 
