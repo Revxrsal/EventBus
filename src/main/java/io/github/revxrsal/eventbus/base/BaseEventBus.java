@@ -168,7 +168,6 @@ public abstract class BaseEventBus implements EventBus {
     @Override public <T> void registerListener(@NotNull EventListener<T> listener) {
         try {
             for (Type type : listener.getClass().getGenericInterfaces()) {
-                System.out.println(type);
                 if (type.getTypeName().startsWith(EventListener.class.getName())) {
                     Class eventType = type instanceof ParameterizedType ? (Class<?>) ((ParameterizedType) type).getActualTypeArguments()[0] : Object.class;
                     registerListener(eventType, listener);
