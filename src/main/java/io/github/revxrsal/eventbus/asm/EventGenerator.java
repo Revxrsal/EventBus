@@ -6,10 +6,7 @@ import io.github.revxrsal.eventbus.gen.RequireNonNull;
 import org.jetbrains.annotations.NotNull;
 import org.objectweb.asm.*;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Parameter;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -206,11 +203,6 @@ final class EventGenerator implements Opcodes {
                 adapter.endMethod();
             }
             byte[] generated = writer.toByteArray();
-            try {
-                Files.write(new File("event.class").toPath(), generated);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             GeneratedClassDefiner.define(eventClass.getClassLoader(), name, generated);
 
             // generate a factory to invoke the object constructor
